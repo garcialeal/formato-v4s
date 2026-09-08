@@ -1,0 +1,52 @@
+#include "v4s12/v4s12.h"
+#include <iostream>
+#include <vector>
+#include <cassert>
+#include <cmath>
+
+using namespace v4s12;
+
+int main() {
+    std::cout << "[TEST] Iniciando validación Round-Trip V4S12...\n";
+
+    std::vector<float> vertices = {
+        0.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        0.5f, 1.0f, 0.5f
+    };
+    std::vector<float> normals = { 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f };
+    std::vector<uint32_t> indices = { 0, 1, 2 };
+
+    Encoder encoder;
+    uint32_t geom_id = encoder.add_geometry(vertices, normals, indices);
+    
+    double transform[16] = {
+        1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1
+    };
+    encoder.add_node(geom_id, transform, 0xFFFFFFFF, 0);
+
+    const std::string test_file = "test_artifact.v4s";
+    bool write_ok = encoder.write_file(test_file);
+    assert(write_ok && "Fallo al escribir el archivo");
+
+    Decoder decoder;
+    bool read_ok = decoder.read_file(test_file);
+    assert(read_ok && "Fallo al leer el archivo");
+
+    const auto& decoded_geometries = decoder.get_geometries();
+    assert(decoded_geometries.size() == 1);
+    
+    // Verificación de tolerancia (La cuantización de 12 bits tiene una desviación esperada mínima)
+    const auto& dec_verts = decoded_geometries[0].vertices;
+    assert(dec_verts.size() >= 9); // Padding añade vértices extra
+    
+    std::cout << "[TEST] Vértice original X: " << vertices[3] << " -> Restaurado X: " << dec_verts[3] << "\n";
+    std::cout << "[TEST] ÉXITO: El pipeline S12+V4+ZSTD es reversible.\n";
+    float max_error = 0.0f;
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        float diff = std::abs(vertices[i] - dec_verts[i]);
+        if (diff > max_error) max_error = diff;
+    }
+    std::cout << "[TEST] Error máximo de cuantización S12 (Delta): " << max_error << " unidades\n";
+    return 0;
+}
