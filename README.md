@@ -1,135 +1,136 @@
 # v4s Format Specification & SDK (v2.0)
-*Arquitectura de Datos Vectoriales Deterministas, Transformada Espectral V4 y Celosía $S_{12}$*
+*Deterministic Vector Data Architecture, V4 Spectral Transform & $S_{12}$ Lattice*
 
-**Autor Principal:** Antonio García Leal  
-**Licencia Núcleo / Especificación:** Dual License (GPLv3 / Licencia Comercial SDK)  
-**Estándar de Lenguaje:** C99 (Núcleo Matemático) / C++17 (Contenedor & SDK)
+**Lead Author:** Antonio García Leal  
+**Core / Specification License:** Dual License (GPLv3 / Commercial SDK License)  
+**Language Standard:** C99 (Mathematical Core) / C++17 (Wrapper & SDK)
 
 ---
 
-## 1. Visión General
+## 1. Overview
 
-**v4s v2.0** es un formato binario y motor de renderizado geométrico determinista diseñado para eliminar los cuellos de botella de la coma flotante estándar (IEEE 754) en el almacenamiento y transmisión de geometrías masivas (CAD, GIS, LiDAR, 3D).
+**v4s v2.0** is a binary format and deterministic geometric rendering engine designed to eliminate standard floating-point (IEEE 754) bottlenecks in the storage and transmission of massive 3D geometries (CAD, GIS, LiDAR).
 
-Mediante la combinación de la **Transformada Espectral Mariposa V4**, la **Cuantización en Celosía de Residuos Coprimos $S_{12}$** y el **Algoritmo de Firma Espacial G3-RH512-256**, **v4s** ejecuta el procesamiento geométrico mediante operaciones enteras bit a bit (**0 FLOPs**), garantizando cero desvío topológico (*drift*), desduplicación instanciada nativa y compatibilidad directa con estructuras de memoria GPU (*Zero-Copy Memory Mapping*).
+Combining the **V4 Butterfly Spectral Transform**, **$S_{12}$ Coprime Residue Lattice Quantization**, and the **G3-RH512-256 Spatial Hashing Algorithm**, **v4s** executes geometric processing via bitwise integer operations (**0 FLOPs**). This guarantees zero topological drift, native instanced deduplication, and direct compatibility with GPU memory layouts (*Zero-Copy Memory Mapping*).
 
-## 2. Arquitectura de Procesamiento y Ventajas Técnicas
+## 2. Processing Pipeline & Technical Features
 
-El formato **v4s** implementa un flujo de compresión y renderizado determinista en cinco etapas que transforma geometría 3D en una representación espectral ligera:
+The **v4s** format implements a 5-stage compression and rendering pipeline:
 
-  [Geometría Float32 (CAD/GIS)]
+```text
+  [Float32 Geometry (CAD/GIS)]
          │
          ▼
-   [1. Firma Espacial G3] ─────────> Deduplicación instantánea de objetos repetidos
+   [1. G3 Spatial Hashing] ─────────> Instant O(1) object deduplication
          │
          ▼
-   [2. Cuantización en Celosía S12] ─> Reducción de tasa de bits con continuidad C1
+   [2. S12 Lattice Quantization] ───> Bitrate reduction with C1 continuity
          │
          ▼
-   [3. Transformada Espectral V4] ──> Procesamiento espectral entero (0 FLOPs)
+   [3. V4 Spectral Transform] ──────> Pure integer processing (0 FLOPs)
          │
          ▼
-   [4. Reordenamiento Entrópico] ────> Agrupación de energía por órbitas de Klein
+   [4. Entropic Reordering] ────────> Energy grouping via Klein orbits
          │
          ▼
-   [5. Empaquetado Binario v4s] ────> Compresión entrópica final de alta densidad
+   [5. v4s Binary Packing] ─────────> High-density ZSTD compression
+```
 
-### 2.1 Motor de Firma Espacial G3 (Deduplicación Instanciada)
-* **Verificación de Identidad Instantánea:** Evalúa mallas e índices en tiempo $O(1)$ mediante hashing no criptográfico de 256 bits.
-* **Ahorro de Memoria:** Identifica duplicados en grandes conjuntos de datos (ej. elementos repetidos en arquitecturas BIM/CAD) antes del procesamiento geométrico.
+### 2.1 G3 Spatial Hashing Engine (Instanced Deduplication)
+* **Instant Verification:** Evaluates meshes and indices in $O(1)$ time using a 256-bit non-cryptographic hash algorithm.
+* **Memory Reduction:** Detects duplicates in large datasets (e.g., repeated structural elements in BIM/CAD) prior to geometric processing.
 
-### 2.2 Cuantización en Celosía $S_{12}$
-* **Reducción del 44.21% en Tasa de Bits:** Compacta el espacio de estados geométricos proyectando las coordenadas sobre una malla discreta balanceada.
-* **Integridad Topológica $C^1$:** Conserva la continuidad tangencial en curvas y mallas continuas, previniendo fisuras en bordes compartidos.
+### 2.2 $S_{12}$ Lattice Quantization
+* **44.21% Bitrate Reduction:** Compacts geometric state space by projecting coordinates onto a balanced discrete lattice.
+* **$C^1$ Topological Integrity:** Preserves tangential continuity across curves and continuous meshes, preventing cracks on shared edges.
 
-### 2.3 Transformada Espectral Mariposa V4 (0 FLOPs)
-* **Cero Operaciones en Coma Flotante:** Reemplaza el costo computacional de las matrices tradicionales por combinatoria entera bit a bit.
-* **Determinismo Absoluto:** Elimina las diferencias de renderizado entre plataformas al evitar la acumulación de errores de redondeo IEEE 754.
-* **Decodificación Ultrarrápida:** La reconstrucción inversa se realiza con operaciones inmediatas a nivel de registro (`>>`), maximizando el rendimiento en GPU y navegadores web.
+### 2.3 V4 Butterfly Spectral Transform (0 FLOPs)
+* **Zero Floating-Point Operations:** Replaces costly traditional transformation matrices with bitwise integer combinatorics.
+* **Absolute Determinism:** Eliminates cross-platform rendering discrepancies by avoiding IEEE 754 rounding drift.
+* **Ultra-Fast Decoding:** Inverse reconstruction uses immediate register-level operations (`>>`), maximizing throughput on GPUs and WebAssembly.
 
-### 2.4 Reordenamiento Topo-Entrópico
-* **Optimización para Compresión:** Agrupa la energía de los coeficientes espectrales basándose en la simetría de grupos algebraicos.
-* **Ratios de Compresión Superiores:** Maximiza la densidad de información previa al empaquetado entrópico final, logrando archivos sensiblemente más pequeños sin sacrificar precisión visual.
+### 2.4 Topo-Entropic Reordering
+* **Compression Optimization:** Groups spectral coefficient energy based on algebraic group symmetry.
+* **Superior Compression Ratios:** Maximizes information density prior to final entropic packing, achieving significantly smaller file sizes without sacrificing visual precision.
 
-## 3. Especificación del Formato Binario (.v4s v2.0)
+## 3. Binary Format Specification (.v4s v2.0)
 
-Un archivo **.v4s** organiza los datos vectoriales en tres bloques contiguos alineados en memoria para optimizar el acceso directo (*Zero-Copy Memory Mapping*):
+A **.v4s** file organizes vector data into three contiguous, memory-aligned blocks to optimize direct memory access (*Zero-Copy Memory Mapping*):
 
 ```text
 +-------------------------------------------------------+
-| Cabecera Header (64 bytes, alineado pack 8)           |
+| Header (64 bytes, aligned pack 8)                     |
 +-------------------------------------------------------+
-| Tabla de Nodos de Escena (num_nodes * sizeof(Node))   |
+| Scene Nodes Table (num_nodes * sizeof(Node))          |
 +-------------------------------------------------------+
-| Bloques de Geometría (Hash + AABB + Payload ZSTD)     |
+| Geometry Blocks (Hash + AABB + ZSTD Payload)          |
 +-------------------------------------------------------+
 ```
 
-### 3.1 Estructura del Header (`Header`)
-| Campo | Tipo | Tamaño | Descripción |
+### 3.1 Header Structure (`Header`)
+| Field | Type | Size | Description |
 | :--- | :--- | :--- | :--- |
-| `magic` | `char[4]` | 4 bytes | Identificador del formato (`'V'`, `'4'`, `'S'`, `'2'`) |
-| `version` | `uint16_t` | 2 bytes | Versión del estándar (`200` = v2.0) |
-| `flags` | `uint16_t` | 2 bytes | Banderas globales de configuración del archivo |
-| `global_aabb_min` | `double[3]` | 24 bytes | Coordenadas mínimas del cuadro delimitador ($X, Y, Z$) |
-| `global_aabb_max` | `double[3]` | 24 bytes | Coordenadas máximas del cuadro delimitador ($X, Y, Z$) |
-| `num_geometries` | `uint32_t` | 4 bytes | Cantidad de bloques geométricos únicos deduplicados |
-| `num_nodes` | `uint32_t` | 4 bytes | Número total de instancias / nodos en la escena |
-| `offset_hashtable`| `uint64_t` | 8 bytes | Desplazamiento (bytes) hasta el bloque de nodos |
-| `offset_geometries`| `uint64_t`| 8 bytes | Desplazamiento (bytes) hasta los datos geométricos |
+| `magic` | `char[4]` | 4 bytes | Format identifier (`'V'`, `'4'`, `'S'`, `'2'`) |
+| `version` | `uint16_t` | 2 bytes | Standard version (`200` = v2.0) |
+| `flags` | `uint16_t` | 2 bytes | Global configuration flags |
+| `global_aabb_min` | `double[3]` | 24 bytes | Minimum bounding box coordinates ($X, Y, Z$) |
+| `global_aabb_max` | `double[3]` | 24 bytes | Maximum bounding box coordinates ($X, Y, Z$) |
+| `num_geometries` | `uint32_t` | 4 bytes | Count of unique deduplicated geometry blocks |
+| `num_nodes` | `uint32_t` | 4 bytes | Total number of instances / scene nodes |
+| `offset_hashtable`| `uint64_t` | 8 bytes | Byte offset to scene nodes block |
+| `offset_geometries`| `uint64_t`| 8 bytes | Byte offset to geometry data |
 
-### 3.2 Nodo de Escena (`SceneNode`)
-Representa la jerarquía, posición e instanciación de geometrías reutilizables en el espacio 3D:
-*   `geometry_id` (`uint32_t`): Identificador único de la geometría deduplicada vinculada.
-*   `transform` (`double[16]`): Matriz de transformación $4 \times 4$ en precisión doble.
-*   `layer_color_rgba` (`uint32_t`): Color de capa o entidad empaquetado en 32 bits RGBA.
-*   `node_flags` (`uint32_t`): Máscara de atributos específicos del nodo.
+### 3.2 Scene Node (`SceneNode`)
+Represents the hierarchy, positioning, and instancing of reusable geometries in 3D space:
+* `geometry_id` (`uint32_t`): Unique ID of the linked deduplicated geometry block.
+* `transform` (`double[16]`): $4 \times 4$ transformation matrix in double precision.
+* `layer_color_rgba` (`uint32_t`): Layer or entity color packed in 32-bit RGBA.
+* `node_flags` (`uint32_t`): Node-specific attribute bitmask.
 
-### 3.3 Banderas de Formato (`FormatFlags`)
-*   `FLAG_NONE` (`0x0000`): Configuración base por defecto.
-*   `FLAG_HAS_NORMALS` (`0x0001`): Incluye vectores normales decodificables.
-*   `FLAG_LAYER_COLORS` (`0x0002`): Habilita colores por capa / entidad.
-*   `FLAG_ZSTD_COMPRESSED` (`0x0004`): Payload comprimido mediante algoritmo ZSTD.
-*   `FLAG_INDEX_16BIT` (`0x0008`): Índices de 16 bits (optimizado para mallas pequeñas).
-*   `FLAG_PLANAR_2D` (`0x0010`): Geometría plana 2D (optimización GIS/CAD 2D).
-*   `FLAG_N_DIMENSIONAL` (`0x0020`): Soporte para capas de atributos multidimensionales.
+### 3.3 Format Flags (`FormatFlags`)
+* `FLAG_NONE` (`0x0000`): Default base configuration.
+* `FLAG_HAS_NORMALS` (`0x0001`): Includes decodable normal vectors.
+* `FLAG_LAYER_COLORS` (`0x0002`): Enables per-layer / per-entity colors.
+* `FLAG_ZSTD_COMPRESSED` (`0x0004`): Payload compressed via ZSTD algorithm.
+* `FLAG_INDEX_16BIT` (`0x0008`): 16-bit indices (optimized for smaller meshes).
+* `FLAG_PLANAR_2D` (`0x0010`): 2D planar geometry (2D GIS/CAD optimization).
+* `FLAG_N_DIMENSIONAL` (`0x0020`): Support for N-dimensional attribute layers.
 
-## 4. API en C Nativa (`v4s12_c_api.h`)
+## 4. Native C-API (`v4s12_c_api.h`)
 
-Para garantizar la interoperabilidad con WebAssembly, C#, Python, Rust y SDKs de terceros (CAD, GIS, motores gráficos), el SDK expone una interfaz de decodificación mediante el puntero opaco `v4s12_decoder_t`:
+To ensure interoperability with WebAssembly, C#, Python, Rust, and third-party CAD/GIS SDKs, the engine exposes an opaque pointer interface (`v4s12_decoder_t`):
 
 ```c
-// Creación y destrucción del decodificador
+// Decoder creation and teardown
 v4s12_decoder_t* v4s12_decoder_create(void);
 void v4s12_decoder_destroy(v4s12_decoder_t* decoder);
 
-// Carga en memoria (Zero-Copy friendliness)
+// In-memory loading (Zero-Copy friendly)
 int v4s12_decoder_load_memory(v4s12_decoder_t* decoder, const char* buffer, size_t size);
 
-// Métodos de inspección de recuentos
+// Inspection and count queries
 uint32_t v4s12_decoder_get_geometry_count(const v4s12_decoder_t* decoder);
 uint32_t v4s12_decoder_get_node_count(const v4s12_decoder_t* decoder);
 
-// Consulta de metadatos de geometría
+// Geometry metadata inspection
 int v4s12_decoder_get_geometry_info(const v4s12_decoder_t* decoder, uint32_t index, 
                                    uint32_t* out_vertex_count, uint32_t* out_index_count);
 
-// Lectura de búferes geométricos reconstruidos (vértices e índices)
+// Buffer reading (reconstructed vertices and indices)
 int v4s12_decoder_read_geometry(const v4s12_decoder_t* decoder, uint32_t index,
                                 float* out_vertices, uint32_t* out_indices);
 
-// Lectura de nodo de escena (ID de geometría, matriz 4x4 y color RGBA)
+// Scene node reading (geometry ID, 4x4 matrix, RGBA color)
 int v4s12_decoder_read_node(const v4s12_decoder_t* decoder, uint32_t index,
                             uint32_t* out_geom_id, double out_transform[16], uint32_t* out_color);
-
 ```
 
-## 5. Compilación y Construcción (CMake)
+## 5. Building & Compilation (CMake)
 
-El proyecto utiliza **CMake 3.15+** como sistema de construcción multiplataforma[cite: 22]. La librería central `v4s12_lib` actúa como el núcleo universal para binarios nativos, módulos WebAssembly y futuros *plugins* de integración CAD/GIS (AutoCAD, SolidWorks, Revit, etc.).
+The project uses **CMake 3.15+** as its cross-platform build system. The core library `v4s12_lib` acts as the universal engine for native binaries, WebAssembly modules, and third-party CAD/GIS integration plugins (AutoCAD, SolidWorks, Revit, etc.).
 
-### 5.1 Compilación Nativa (C++17 / C99)
-Genera la librería estática central, la herramienta CLI de inspección (`v4s_info`) y el ejecutable de pruebas:
+### 5.1 Native Build (C++17 / C99)
+Generates the core static library, CLI inspection tool (`v4s_info`), and test suite executable:
 
 ```bash
 mkdir build && cd build
@@ -137,8 +138,8 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build .
 ```
 
-### 5.2 Compilación WebAssembly (Emscripten)
-Genera el módulo ejecutable `v4s12_decoder.js` y `v4s12_decoder.wasm` para motores WebGPU / WebGL en navegadores web:
+### 5.2 WebAssembly Build (Emscripten)
+Generates executable modules `v4s12_decoder.js` and `v4s12_decoder.wasm` for WebGPU / WebGL browser engines:
 
 ```bash
 mkdir build_wasm && cd build_wasm
@@ -146,20 +147,20 @@ emcmake cmake ..
 emmake make
 ```
 
-**Configuración de exportación WASM (`Emscripten`):**
-*   `EXPORTED_FUNCTIONS`: Expone las funciones de la C-API y la gestión de memoria (`_malloc`, `_free`).
-*   `MODULARIZE=1`: Encapsula el motor en el módulo aislado `V4S12Module`.
-*   `ALLOW_MEMORY_GROWTH=1`: Permite la expansión dinámica de la memoria RAM en el navegador.
+**Emscripten Export Configuration:**
+* `EXPORTED_FUNCTIONS`: Exposes C-API functions and memory management (`_malloc`, `_free`).
+* `MODULARIZE=1`: Encapsulates the engine inside the `V4S12DecoderModule` namespace.
+* `ALLOW_MEMORY_GROWTH=1`: Enables dynamic browser memory expansion.
 
-### 5.3 Extensibilidad y Plugins CAD / GIS
-La interfaz binaria expuesta por `v4s12_c_api.h` permite empaquetar el motor en librerías dinámicas (`.dll` / `.so` / `.dylib`) para la integración en entornos de terceros:
-*   **AutoCAD (ObjectARX / C++):** Vinculación nativa directa con `v4s12_lib`.
-*   **SolidWorks / Revit (C# / .NET):** Interoperabilidad vía P/Invoke consumiendo la C-API.
-*   **QGIS / Python:** Bindings mediante `ctypes` o `CFFI` sobre la API en C nativa.
+### 5.3 Extensibility & CAD / GIS Plugins
+The binary interface exposed by `v4s12_c_api.h` allows wrapping the engine into dynamic libraries (`.dll` / `.so` / `.dylib`) for third-party embedding:
+* **AutoCAD (ObjectARX / C++):** Direct native linkage with `v4s12_lib`.
+* **SolidWorks / Revit (C# / .NET):** P/Invoke interop consuming the native C-API.
+* **QGIS / Python:** Bindings via `ctypes` or `CFFI` over the C-API.
 
-## 6. Modelo de Licenciamiento y Protección de PI
+## 6. Licensing Model & IP Protection
 
-El ecosistema **v4s** adopta un modelo de **doble licencia** para maximizar la adopción industrial y asegurar la sostenibilidad del proyecto:
+The **v4s** ecosystem adopts a **dual-license model** to maximize industrial adoption while ensuring project sustainability:
 
-*   **Especificación ABI/API y Visores Abiertos (GPLv3):** Garantiza la transparencia, auditoría pública y adopción comunitaria en proyectos de software libre y proyectos académicos.
-*   **Enterprise SDK & Núcleo Integrable (Licencia Comercial):** Permite a empresas y desarrolladores integrar la aceleración nativa y el decodificador **v4s** dentro de software propietario (CAD, GIS corporativo, motores 3D) manteniendo el código fuente desacoplado mediante acuerdos de distribución comercial.
+* **ABI/API Specification & Open Viewers (GPLv3):** Guarantees transparency, public auditing, and community adoption in open-source and academic projects.
+* **Enterprise SDK & Core Integration (Commercial License):** Enables enterprise teams to embed native acceleration and the **v4s** decoder inside proprietary software (CAD, corporate GIS, 3D engines) while keeping source code decoupled through commercial distribution agreements.

@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/v4s_info.dir/cli/v4s_info.cpp.o -o v4s_info  libv4s12_lib.a -lzstd 

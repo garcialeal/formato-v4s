@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/generate_benchmarks.dir/tools/generate_benchmarks.cpp.o -o generate_benchmarks  libv4s12_lib.a -lzstd 

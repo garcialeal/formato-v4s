@@ -1,6 +1,0 @@
-/home/garci/proyectos/libv4s12-v2/build/CMakeFiles/v4s12_lib.dir
-/home/garci/proyectos/libv4s12-v2/build/CMakeFiles/test_v2.dir
-/home/garci/proyectos/libv4s12-v2/build/CMakeFiles/v4s_info.dir
-/home/garci/proyectos/libv4s12-v2/build/CMakeFiles/generate_benchmarks.dir
-/home/garci/proyectos/libv4s12-v2/build/CMakeFiles/edit_cache.dir
-/home/garci/proyectos/libv4s12-v2/build/CMakeFiles/rebuild_cache.dir
