@@ -101,15 +101,15 @@ void G3_RH512_256(const void* key, const size_t len, const uint64_t seed, uint64
 
 namespace v4s12 {
 
-// Conector de la API v4s12 hacia el algoritmo nativo G3
+// Connector from v4s12 API to native G3 algorithm
 Hash256 compute_g3_hash(const void* data, size_t size) {
     Hash256 result{};
     uint64_t out[4] = {0};
 
-    // Ejecuta la firma asimétrica de 512 a 256 bits
+    // Executes 512-to-256 bit asymmetric hash calculation
     G3::G3_RH512_256(data, size, 0, out);
 
-    // Mapeo continuo directo a los 32 bytes requeridos por libv4s12
+    // Direct contiguous mapping to the 32 bytes required by libv4s12
     std::memcpy(result.data(), out, sizeof(out));
     return result;
 }

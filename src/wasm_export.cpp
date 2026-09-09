@@ -23,7 +23,7 @@
 using namespace emscripten;
 using namespace v4s12;
 
-// Exposición directa de la memoria de C++ a TypedArrays de JavaScript
+// Direct exposure of C++ memory to JavaScript TypedArrays
 val get_geometry_vertices(const Decoder& decoder, uint32_t index) {
     const auto& geoms = decoder.get_geometries();
     if (index >= geoms.size()) return val::null();
@@ -39,7 +39,7 @@ val get_geometry_indices(const Decoder& decoder, uint32_t index) {
 EMSCRIPTEN_BINDINGS(v4s12_wasm) {
     class_<Decoder>("Decoder")
         .constructor<>()
-        // JavaScript pasa el binario del archivo como un string/Uint8Array
+        // JavaScript passes the file binary as a string/Uint8Array
         .function("read_memory", optional_override([](Decoder& self, const std::string& buffer) {
             return self.read_memory(buffer.data(), buffer.size());
         }))

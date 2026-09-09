@@ -1,2 +1,56 @@
+# =========================================================================
+# formato-v4s / LIBV4S12 - Git Ignore File
+# =========================================================================
+
+# --- Build Directories ---
 build/
 build_win/
+cmake-build-*/
+bin/
+lib/
+dist/
+
+# --- C/C++ Compiled Artifacts ---
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+*.exe
+*.out
+*.elf
+
+# --- WebAssembly / Emscripten Generated Artifacts (outside dist/) ---
+*.wasm
+*.js.map
+
+# --- CMake Generated / Cache Files ---
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+
+# --- IDE & Editor Configuration Files ---
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.idea/
+*.swp
+*~
+
+# --- System Files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Temporary / Log Files ---
+*.log
+*.tmp
+

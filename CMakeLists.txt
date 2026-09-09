@@ -1,3 +1,20 @@
+# formato-v4s / LIBV4S12 - Deterministic Vector Geometry Engine
+#
+# Copyright (C) 2026 Antonio García Leal (garcialeal)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 cmake_minimum_required(VERSION 3.15)
 project(V4S12 VERSION 2.0 LANGUAGES CXX C)
 
@@ -8,7 +25,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 include(FetchContent)
 
-# 1. Dependencia ZSTD (Dinámica en PC, Compilada desde código en WASM)
+# 1. ZSTD Dependency (Dynamic on PC, Compiled from source for WASM)
 if(NOT EMSCRIPTEN)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(ZSTD REQUIRED libzstd)
@@ -20,7 +37,7 @@ else()
         SOURCE_SUBDIR build/cmake
     )
     
-    # Optimizaciones para un binario WASM ligero
+    # Optimizations for a lightweight WASM binary
     set(ZSTD_BUILD_PROGRAMS OFF CACHE BOOL "" FORCE)
     set(ZSTD_BUILD_SHARED OFF CACHE BOOL "" FORCE)
     set(ZSTD_BUILD_STATIC ON CACHE BOOL "" FORCE)
@@ -32,7 +49,7 @@ else()
     set(ZSTD_INCLUDE_DIRS ${zstd_SOURCE_DIR}/lib)
 endif()
 
-# Definir la librería central (La C-API se incluye aquí como núcleo universal)
+# Define core library (The C-API is included here as the universal core)
 add_library(v4s12_lib STATIC
     src/encoder.cpp
     src/decoder.cpp
@@ -54,7 +71,7 @@ if(ZSTD_LIBRARIES)
     target_link_libraries(v4s12_lib PUBLIC ${ZSTD_LIBRARIES})
 endif()
 
-# 2. Compilar Herramientas Nativas (Solo si NO estamos en Emscripten)
+# 2. Build Native Tools (Only if NOT building with Emscripten)
 if(NOT EMSCRIPTEN)
     add_executable(test_v2 test/test_v2.cpp)
     target_link_libraries(test_v2 PRIVATE v4s12_lib)

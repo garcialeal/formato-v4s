@@ -37,7 +37,7 @@ v4s12_int_t s12_quantize_spline(v4s12_int_t coord);
 #ifdef __cplusplus
 namespace v4s12 {
 
-// Prototipos de las funciones inversas (Decodificador)
+// Inverse function prototypes (Decoder)
 void v4_zigzag_reorder_inv(const v4s12_int_t in_vector[16], v4s12_int_t out_block[16]);
 void v4_transform_2d_4x4_inv(v4s12_int_t block[16]);
 v4s12_int_t s12_dequantize_spline(v4s12_int_t quantized_coord);

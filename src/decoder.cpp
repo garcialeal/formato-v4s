@@ -33,23 +33,23 @@ bool Decoder::read_memory(const char* data, size_t file_size) {
 
     const char* ptr = data;
 
-    // 1. Lectura Zero-Copy de Cabecera
+    // 1. Zero-Copy Header Reading
     Header hdr;
     std::memcpy(&hdr, ptr, sizeof(Header));
-    ptr = data + hdr.offset_hashtable; // Salto directo a nodos
+    ptr = data + hdr.offset_hashtable; // Direct jump to nodes
 
-    // 2. Lectura Zero-Copy del Grafo de Escena
+    // 2. Zero-Copy Scene Graph Reading
     nodes_.resize(hdr.num_nodes);
     size_t nodes_size = hdr.num_nodes * sizeof(SceneNode);
     std::memcpy(nodes_.data(), ptr, nodes_size);
-    ptr = data + hdr.offset_geometries; // Salto directo a geometrías
+    ptr = data + hdr.offset_geometries; // Direct jump to geometries
 
     geometries_.resize(hdr.num_geometries);
 
     for (uint32_t i = 0; i < hdr.num_geometries; ++i) {
         GeometryData& geom = geometries_[i];
 
-        // Extracción de metadatos de geometría
+        // Geometry metadata extraction
         std::memcpy(geom.hash.data(), ptr, 32); ptr += 32;
         std::memcpy(geom.local_aabb_min, ptr, 3 * sizeof(double)); ptr += 3 * sizeof(double);
         std::memcpy(geom.local_aabb_max, ptr, 3 * sizeof(double)); ptr += 3 * sizeof(double);
@@ -59,7 +59,7 @@ bool Decoder::read_memory(const char* data, size_t file_size) {
         uint32_t payload_size;
         std::memcpy(&payload_size, ptr, sizeof(uint32_t)); ptr += sizeof(uint32_t);
 
-        // 3. Descompresión ZSTD Bajo Demanda (Solo Payload)
+        // 3. On-Demand ZSTD Decompression (Payload Only)
         size_t padded_vertex_count = geom.original_vertex_count * 3;
         while (padded_vertex_count % 16 != 0) padded_vertex_count++;
         
@@ -72,7 +72,7 @@ bool Decoder::read_memory(const char* data, size_t file_size) {
         if (ZSTD_isError(d_size)) return false;
         ptr += payload_size;
 
-        // 4. Decodificación Matemática: V4 Inversa + S12
+        // 4. Mathematical Decoding: Inverse V4 + S12
         const v4s12_int_t* spectral_payload = reinterpret_cast<const v4s12_int_t*>(raw_payload.data());
         const uint32_t* indices_payload = reinterpret_cast<const uint32_t*>(raw_payload.data() + spectral_bytes);
 
@@ -90,13 +90,13 @@ bool Decoder::read_memory(const char* data, size_t file_size) {
             v4s12_int_t block[16];
             std::memcpy(zigzag_block, &spectral_payload[b], 16 * sizeof(v4s12_int_t));
 
-            // Inversión Topo-entrópica
+            // Inverse Topo-Entropic Reordering
             v4_zigzag_reorder_inv(zigzag_block, block);
             
-            // Mariposa Espectral Inversa
+            // Inverse Spectral Butterfly
             v4_transform_2d_4x4_inv(block);
 
-            // Descuantización S12 y Reproyección a Float32
+            // S12 Dequantization and Reprojection to Float32
             for (int k = 0; k < 16; ++k) {
                 size_t v_idx = b + k;
                 if (v_idx < geom.original_vertex_count * 3) {

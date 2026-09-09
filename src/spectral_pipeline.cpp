@@ -24,31 +24,31 @@
 
 namespace v4s12 {
 
-// 1. Reordenamiento ZigZag Inverso
+// 1. Inverse ZigZag Reordering
 void v4_zigzag_reorder_inv(const v4s12_int_t in_vector[16], v4s12_int_t out_block[16]) {
-    // Restauramos las órbitas de Klein a sus coordenadas espaciales 4x4
+    // Restores Klein orbits to their 4x4 spatial coordinates
     for (size_t i = 0; i < 16; ++i) {
         out_block[V4_ZIGZAG_MAP[i]] = in_vector[i];
     }
 }
 
-// 2. Transformada Mariposa Inversa (2D 4x4)
+// 2. Inverse Butterfly Transform (2D 4x4)
 void v4_transform_2d_4x4_inv(v4s12_int_t block[16]) {
-    // Aprovecha la propiedad auto-involutiva de la matriz: H_V4 * H_V4 = 4 * I_4
+    // Exploits the self-involutive property of the matrix: H_V4 * H_V4 = 4 * I_4
     v4_transform_2d_4x4(block);
 
-    // Escalado aritmético bit a bit exacto para regresar al dominio espacial
+    // Exact bitwise arithmetic scaling to return to the spatial domain
     for (size_t i = 0; i < 16; ++i) {
         block[i] >>= 4;
     }
 }
 
-// 3. Descuantización S12
+// 3. S12 Dequantization
 v4s12_int_t s12_dequantize_spline(v4s12_int_t quantized_coord) {
-    // Al salir de la transformada inversa, el entero ya descansa exactamente 
-    // sobre un nodo válido de la celosía S12 (residuos coprimos 1, 5, 7, 11).
-    // Su valor matemático es íntegro, por lo que actúa como un puente directo
-    // hacia la des-normalización flotante del Bounding Box.
+    // Upon exiting the inverse transform, the integer already sits exactly 
+    // on a valid node of the S12 lattice (coprime residues 1, 5, 7, 11).
+    // Its mathematical value is whole, acting as a direct bridge
+    // toward the floating-point denormalization of the Bounding Box.
     return quantized_coord;
 }
 

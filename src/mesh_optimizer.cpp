@@ -26,16 +26,16 @@
 
 namespace v4s12 {
 
-// Envoltorio para inyectar G3-RH512-256 como motor de hash de vértices
+// Wrapper to inject G3-RH512-256 as the vertex hashing engine
 struct G3SpatialHash {
     size_t operator()(const std::tuple<float, float, float>& vertex) const {
-        // Empaquetamos las coordenadas truncadas en un array contiguo
+        // Pack truncated coordinates into a contiguous array
         float data[3] = { std::get<0>(vertex), std::get<1>(vertex), std::get<2>(vertex) };
         
-        // Calculamos la firma de 256 bits con el algoritmo G3 nativo
+        // Compute the 256-bit signature with native G3 algorithm
         Hash256 full_hash = compute_g3_hash(data, sizeof(data));
         
-        // Extraemos los primeros 64 bits (size_t) para el mapeo rápido en RAM
+        // Extract the first 64 bits (size_t) for fast RAM mapping
         size_t quick_hash;
         std::memcpy(&quick_hash, full_hash.data(), sizeof(size_t));
         return quick_hash;
@@ -52,7 +52,7 @@ void optimize_geometry(
     out_indices.clear();
     out_indices.reserve(in_indices.size());
 
-    // Usamos el hash G3 en lugar del estándar de la librería C++
+    // Use G3 hash instead of the standard C++ library hash
     std::unordered_map<std::tuple<float, float, float>, uint32_t, G3SpatialHash> vertex_map;
     uint32_t current_new_index = 0;
 
@@ -60,7 +60,7 @@ void optimize_geometry(
         uint32_t original_idx = in_indices[i];
         size_t v_offset = original_idx * 3;
 
-        // Truncamiento milimétrico para absorber derivas de AutoCAD antes del Hash
+        // Millimetric truncation to absorb AutoCAD drift before hashing
         auto v_tuple = std::make_tuple(
             std::round(in_vertices[v_offset] * 1e5f) / 1e5f,
             std::round(in_vertices[v_offset + 1] * 1e5f) / 1e5f,

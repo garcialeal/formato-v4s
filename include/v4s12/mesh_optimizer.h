@@ -25,7 +25,7 @@
 
 namespace v4s12 {
 
-// Toma los datos brutos exportados de AutoCAD y devuelve una malla indexada y limpia
+// Takes raw data exported from AutoCAD and returns a clean, indexed mesh
 void optimize_geometry(
     const std::vector<float>& in_vertices,
     const std::vector<uint32_t>& in_indices,

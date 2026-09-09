@@ -25,7 +25,7 @@
 
 namespace fs = std::filesystem;
 
-// 1. Generador de Cubo Base (Para instanciar bloques CAD)
+// 1. Base Cube Generator (For CAD block instancing)
 void create_cube_mesh(std::vector<float>& vertices, 
                       std::vector<float>& normals, 
                       std::vector<uint32_t>& indices) {
@@ -49,7 +49,7 @@ void create_cube_mesh(std::vector<float>& vertices,
     };
 }
 
-// 2. Generador de Esfera Paramétrica Densa (SolidWorks / Malla 3D)
+// 2. Dense Parametric Sphere Generator (SolidWorks / 3D Mesh)
 void create_sphere_mesh(int rings, int sectors, 
                         std::vector<float>& vertices, 
                         std::vector<float>& normals, 
@@ -95,7 +95,7 @@ int main() {
     fs::create_directories("benchmarks");
     std::cout << "Generating benchmark datasets in ./benchmarks/...\n";
 
-    // TEST 1: Instanciado AutoCAD Masivo (1 Geometría -> 10,000 Nodos)
+    // TEST 1: Massive AutoCAD Instancing (1 Geometry -> 10,000 Nodes)
     {
         v4s12::Encoder encoder;
         std::vector<float> verts, norms;
@@ -121,7 +121,7 @@ int main() {
         std::cout << "[SUCCESS] Saved: benchmarks/cad_instanced_10k.v4s (10,000 scene nodes)\n";
     }
 
-    // TEST 2: Malla 3D Alta Densidad (SolidWorks / CAD Industrial)
+    // TEST 2: High-Density 3D Mesh (SolidWorks / Industrial CAD)
     {
         v4s12::Encoder encoder;
         std::vector<float> verts, norms;
