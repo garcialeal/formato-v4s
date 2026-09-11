@@ -5,6 +5,7 @@
 # --- Build Directories ---
 build/
 build_win/
+build-wasm/
 cmake-build-*/
 bin/
 lib/
@@ -25,6 +26,10 @@ dist/
 # --- WebAssembly / Emscripten Generated Artifacts (outside dist/) ---
 *.wasm
 *.js.map
+
+# --- Benchmark & Local Test Data ---
+*.v4s
+benchmarks/
 
 # --- CMake Generated / Cache Files ---
 CMakeCache.txt
@@ -53,4 +58,3 @@ desktop.ini
 # --- Temporary / Log Files ---
 *.log
 *.tmp
-

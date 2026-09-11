@@ -24,7 +24,7 @@
 #include <stddef.h>
 
 /* ========================================================================= */
-/* 1. C99 MATHEMATICAL CORE (SDK SDK-V4S12)                                  */
+/* 1. C99 MATHEMATICAL CORE                                                 */
 /* ========================================================================= */
 
 #ifndef V4S12_INT_T_DEFINED
@@ -36,9 +36,9 @@
 #endif
 #endif
 
-#include "v4s12/v4s12_transform.h"
-#include "v4s12/v4s12_zigzag.h"
-#include "v4s12/v4s12_quant.h"
+#include "v4s12/v4_transform.h"
+#include "v4s12/v4_zigzag.h"
+#include "v4s12/s12_quant.h"
 
 /* ========================================================================= */
 /* 2. .V4S CONTAINER AND SCENE LAYER (C++17)                                 */
@@ -51,7 +51,7 @@
 #include <array>
 
 #include "v4s12/types.h"
-#include "v4s12/g3_hash.h"
+#include "g3_hash.h"
 
 namespace v4s12 {
 

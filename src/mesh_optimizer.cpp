@@ -18,7 +18,7 @@
  */
  
 #include "v4s12/mesh_optimizer.h"
-#include "v4s12/g3_hash.h"
+#include "g3_hash.h" // Inclusion C++ (fuera de extern "C")
 #include <unordered_map>
 #include <tuple>
 #include <cmath>

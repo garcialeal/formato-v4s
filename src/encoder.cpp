@@ -20,6 +20,7 @@
 #include "v4s12/v4s12.h"
 #include "v4s12/types.h"
 #include "v4s12/mesh_optimizer.h"
+#include "g3_hash.h" // Inclusion C++ (fuera de extern "C")
 #include <fstream>
 #include <zstd.h>
 #include <iostream>
@@ -27,6 +28,12 @@
 #include <cstring>
 #include <limits>
 #include <cmath>
+
+extern "C" {
+#include "s12_quant.h"
+#include "v4_transform.h"
+#include "v4_zigzag.h"
+}
 
 namespace v4s12 {
 

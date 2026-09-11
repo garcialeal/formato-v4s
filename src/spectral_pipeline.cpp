@@ -17,10 +17,16 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "v4s12/v4s12.h"
 #include "v4s12/spectral_pipeline.h"
-#include "v4s12/v4s12_transform.h"
-#include "v4s12/v4s12_zigzag.h"
-#include "v4s12/v4s12_quant.h"
+#include "v4_transform.h" // Fuera de extern "C" porque arrastra tipos C++
+
+extern "C" {
+#include "s12_quant.h"
+#include "v4_zigzag.h"
+}
+
+// Resto del código...
 
 namespace v4s12 {
 
